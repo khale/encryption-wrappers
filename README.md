@@ -1,7 +1,8 @@
 ## Crypto Wrappers
 
-This is just a set of shell scripts that wrap around the OpenSSL utility (because
-I can't seem to remember the incantations). 
+This is a set of shell scripts that wrap around the OpenSSL utility (because
+I can't seem to remember the incantations). Used for manual encryption/decryption,
+both symmetric and asymmetric.
 
 ## Prerequisites
 

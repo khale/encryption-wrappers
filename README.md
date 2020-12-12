@@ -10,13 +10,14 @@ You need to have OpenSSL installed, which you probably already do. If not, go ge
 
 ## Usage
 
-To do custom hybrid encryption, generate a long (256-bit) pseudo-random key for AES:
+To do custom hybrid encryption, generate a long pseudo-random key for AES. You can plug in whatever key length you'd like,
+but at least 256 is recommended:
 
 ```
 $ ./gen-aes-key 256 > aes-key.hex
 ```
 
-Encrypt this random key using `./rsa-encrypt.sh`. You first need an RSA key-pair:
+Encrypt this random key using `./rsa-encrypt.sh`. You first need an RSA key-pair (use a key length of at least 2048):
 
 ```
 $ ./gen-rsa-key.sh 2048

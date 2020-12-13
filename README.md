@@ -1,17 +1,33 @@
-## Crypto Wrappers
+## Crypto Communication Wrappers
 
-This is a set of shell scripts that wrap around the OpenSSL utility (because
-I can't seem to remember the incantations). Used for sending text in open channels with manual encryption/decryption,
-both symmetric and asymmetric.
+This is a set of scripts for manual secure communication. They're built around OpenSSL, and are basically
+just wrappers around it because 
+I can't seem to remember the incantations. Remember, the most secure 
 
 ## Prerequisites
 
-You need to have OpenSSL installed, which you probably already do. If not, go get it.
+### Linux
+You need to have OpenSSL installed, which you probably already do. If not, go get it using your distro's package
+manager. 
+
+### Mac
+Install openssl via homebrew or macports etc.
+
+### Windows
+Likewise, you'll need OpenSSL. For example, if you have choclatey, you can install via admin PowerShell:
+
+```
+$ choco install OpenSSL.light
+```
 
 ## Usage
+The basic idea here is that you'll derive a key either using RSA or a diffie-hellman exchange, then use that
+key to communicate using a secure cipher (AES). You should treat this key as an ephemeral session key. Do not reuse it. 
 
-To do custom hybrid encryption, generate a long pseudo-random key for AES. You can plug in whatever key length you'd like,
-but at least 256 is recommended:
+### RSA
+To do custom hybrid encryption with RSA, first generate a long pseudo-random key for AES. You can plug in whatever key length you'd like; 128 is the minimum
+acceptable key length [recommended by NIST](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf), but since performance is of little concern
+here, why not use 256. 
 
 ```
 $ ./gen-aes-key 256 > aes-key.hex

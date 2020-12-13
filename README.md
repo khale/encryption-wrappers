@@ -3,7 +3,7 @@
 This is a set of scripts for manual secure communication. They're built around OpenSSL, and are basically
 just wrappers around it because 
 I can't seem to remember the incantations. Remember, the most secure secure thing you can do is use
-a one-time pad :)
+a one-time pad. Just remember to watch out for those Byzantine Generals :)
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ The basic idea here is that you'll derive a key either using RSA or ECDH, then u
 key to communicate using a secure block cipher (AES). You should treat this key as an ephemeral session key. Do not reuse it!
 
 ### RSA
-To do custom hybrid encryption with RSA, first generate a long pseudo-random key for AES. You can plug in whatever key length you'd like; 128 is the minimum
+To perform hybrid encryption with RSA, first generate a long pseudo-random key for AES. You can plug in whatever key length you'd like; 128 is the minimum
 acceptable key length [recommended by NIST](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf), but since performance is of little concern
 here, why not use 256. 
 
@@ -82,24 +82,28 @@ Or go nuts and hide it in a JPG with [steghide](http://steghide.sourceforge.net/
 
 ### ECDH
 
-Unfortunately this is more of a pain, because unlike with RSA, we don't want to advertise a static
-public key. We will generate a shared secret for every session, then use that to encrypt. Annoying, but 
-better. The basic flow is the following:
+The tools here use the Elliptic Curve Diffie-Hellman key exchange paired with 
+256-bit AES in CBC mode. The default curve over the 256-bit prime field (`secp256k1`).
 
-1. Receiver (B) generates temporary EC keypair 
-2. Receiver (B) sends temporary public key to sender. This can be over an insecure channel.
-3. Sender (A) generates temporary EC keypair
-4. Sender (A) derives shared secret from B's public key.
-5. Sender (A) encrypts message with AES256, using shared secret to derive IV and symmetric key for AES.
-6. Sender (A) generates an HMAC of encrypted message using shared ECDH secret.
-7. Sender (A) sends HMAC, encrypted message, and temporary public key to (B).
-8. Receiver (B) derives shared secret from A's temporary public key.
-9. Receiver (B) checks authenticity and integrity of encrypted message by generating his own HMAC from shared secret
+Unfortunately this setup is more of a pain, because unlike with RSA, we don't generally advertise a static
+public key. We will generate a shared secret for every session, then use that to encrypt. Annoying in a
+manual setup, but 
+more secure. The general flow is the following:
+
+1. Receiver (`B`) generates temporary EC keypair 
+2. Receiver (`B`) sends temporary public key to sender. This can be over an insecure channel.
+3. Sender (`A`) generates temporary EC keypair
+4. Sender (`A`) derives shared secret from `B`'s public key.
+5. Sender (`A`) encrypts message with AES256, using shared secret to derive IV and symmetric key for AES.
+6. Sender (`A`) generates an HMAC of encrypted message using shared ECDH secret.
+7. Sender (`A`) sends HMAC, encrypted message, and temporary public key to (`B`).
+8. Receiver (`B`) derives shared secret from `A`'s temporary public key.
+9. Receiver (`B`) checks authenticity and integrity of encrypted message by generating his own HMAC from shared secret
    and received message, and comparing with A's HMAC.
-10. Receiver (B) decrypts payload using shared secret to derive IV and symmetric key for AES.
+10. Receiver (`B`) decrypts payload using shared secret to derive IV and symmetric key for AES.
 
 
-We assume here that A already has received B's public key, called `recv-pub.pem`. A can
+We assume that A has already received `B`'s public key, here called `recv-pub.pem`. `A` can
 then do the following to generate ciphertext:
 
 ```
@@ -116,7 +120,7 @@ Generating HMAC...
 Send your public key (tmppub.pem), the encrypted data (output.enc), and the HMAC (hmac.send) to the recipient.
 ```
 
-Now on the receive side, B can do the following to get the plaintext:
+Now on the receive side, `B` can do the following to get back the plaintext:
 
 ```
 $ ./ecdh-decrypt.sh recv-priv.pem output.enc foo.out tmppub.pem hmac.send

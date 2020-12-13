@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # $1 - file to hash
 # $2 - secret key

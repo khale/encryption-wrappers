@@ -15,7 +15,7 @@ fi
 
 MODE=cfb
 
-if [[ -nz "$2" ]]; then
+if [[ -n "$2" ]]; then
     echo "using $2 mode"
     MODE="$2"
 fi
